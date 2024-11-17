@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import 'dart:developer';
@@ -5,6 +7,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:quickalert/quickalert.dart';
 
 class QRScanner extends StatefulWidget{
   const QRScanner({super.key});
@@ -49,9 +52,11 @@ class _QRViewExampleState extends State<QRScanner> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
+                  // handler if text is scanned
                   if (result != null)
-                    Text(
-                        'Barcode Type: ${result!.format.name}   Data: ${result!.code}')
+                    const Text('Scan a code')
+                    //Text(
+                    //    'Barcode Type: ${result!.format.name}   Data: ${result!.code}')
                   else
                     const Text('Scan a code'),
                   Row(
@@ -149,13 +154,32 @@ class _QRViewExampleState extends State<QRScanner> {
     );
   }
 
-  void _onQRViewCreated(QRViewController controller) {
+  void  _onQRViewCreated(QRViewController controller) {
     setState(() {
       this.controller = controller;
     });
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         result = scanData;
+
+        // if qr is detected
+        if(result!.code != null){
+          String str = result!.code!;
+          var qrData = jsonDecode(str) as Map<String, dynamic>;
+          log(str);
+          //log(qrData.toString());
+
+          //await controller.pauseCamera();
+          if(qrData["subject"]["PCN"] != null){
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.success,
+              text: "QR Successfully Scanned\nPCN: ${qrData["subject"]["PCN"]}",
+            );
+          }
+
+          //await controller.resumeCamera();
+        }
       });
     });
   }
