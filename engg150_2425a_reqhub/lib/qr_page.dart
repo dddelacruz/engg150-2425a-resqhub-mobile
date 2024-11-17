@@ -184,7 +184,7 @@ class _QRViewExampleState extends State<QRScanner> {
                 log("adding log to database");
 
                 // check if unlogged out log is in database
-                await db.collection("logs").where("id", isEqualTo: qrData["subject"]["PCN"]).get().then((querySnapshot){
+                db.collection("logs").where("id", isEqualTo: qrData["subject"]["PCN"]).get().then((querySnapshot){
                   for (var docSnapshot in querySnapshot.docs) {
                     log('${docSnapshot.id} => ${docSnapshot.data()}');
                     if(docSnapshot.data()['timeOut'] == null){

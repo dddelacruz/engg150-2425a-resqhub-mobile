@@ -70,14 +70,75 @@ class _LogInOutFormState extends State<LogInOutForm>{
                       child: ElevatedButton(
                         onPressed: () {
                           debugPrint(_formKey.currentState?.value.toString());
+                          
+                          if(_formKey.currentState != null){
+                            var name = {
+                              "fName" : _formKey.currentState!.value["fName"],
+                              "mName" : _formKey.currentState!.value["mName"],
+                              "lName" : _formKey.currentState!.value["lName"],
+                            };
 
-                          // add new log to log database
+                            // find id of user
+                            var id ="";
+                            var loggingOut = false;
 
-                          QuickAlert.show(
-                            context: context,
-                            type: QuickAlertType.success,
-                            text: "New User Registered and Logged In",
-                          );
+                            db.collection("users").where("fName", isEqualTo: name["fName"])
+                              .where("mName", isEqualTo: name["mName"])
+                              .where("lName", isEqualTo: name["lName"])
+                              .get().then((querySnapshot){
+                                for (var docSnapshot in querySnapshot.docs) {
+                                  log("found match");
+                                  id = docSnapshot.id;
+                                  
+                                  log("User id: $id");
+
+                                  // check if user is logged in or not
+                                  db.collection("logs").where("id", isEqualTo: id).get().then((querySnapshot){
+                                    for (var docSnapshot in querySnapshot.docs) {
+                                      log('${docSnapshot.id} => ${docSnapshot.data()}');
+                                      if(docSnapshot.data()['timeOut'] == null){
+                                        log("logging out");
+                                        loggingOut = true;
+
+                                        db.collection("logs").doc(docSnapshot.id).set({"timeOut" : DateTime.now()}, SetOptions(merge: true)).then((_){
+                                          QuickAlert.show(
+                                            context: context,
+                                            type: QuickAlertType.success,
+                                            text: "User Logged Out",
+                                          );
+                                        });
+
+                                        break;
+                                      }
+                                    }
+
+                                    // user is logging in
+                                    if(!loggingOut){
+                                      log("logging in");
+                                      // add to firebase
+                                      final newlog = <String, dynamic>{
+                                        "id": id,
+                                        "timeIn": DateTime.now(),
+                                        "timeOut": null,
+                                      };
+
+                                      db.collection("logs").add(newlog).then((DocumentReference doc) {
+                                        log('DocumentSnapshot added with ID: ${doc.id}');
+                                        
+                                        QuickAlert.show(
+                                          context: context,
+                                          type: QuickAlertType.success,
+                                          text: "User Logged In",
+                                        );
+                                     });
+                                    }
+                                  });
+
+                                  break;
+                                }
+                              });
+
+                          }
 
                         }, 
                         child: const Text("Submit")),
