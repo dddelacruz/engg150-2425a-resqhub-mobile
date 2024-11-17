@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "359949500637",
+    "project_id": "engg150-2425a-resqhub",
+    "storage_bucket": "engg150-2425a-resqhub.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:359949500637:android:7303229bf5c1bc8f801b34",
+        "android_client_info": {
+          "package_name": "com.example.engg150_2425a_reqhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjfdie4mEe1ZvlFKofL4sA6biH5MPLwKY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

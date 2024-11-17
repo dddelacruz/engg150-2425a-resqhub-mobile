@@ -176,6 +176,8 @@ class _QRViewExampleState extends State<QRScanner> {
               type: QuickAlertType.success,
               text: "QR Successfully Scanned\nPCN: ${qrData["subject"]["PCN"]}",
             );
+
+            
           }
 
           //await controller.resumeCamera();
