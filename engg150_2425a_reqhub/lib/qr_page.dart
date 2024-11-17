@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class QRScanner extends StatefulWidget{
   const QRScanner({super.key});
@@ -27,6 +28,7 @@ class _QRViewExampleState extends State<QRScanner> {
   Barcode? result;
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  final db = FirebaseFirestore.instance;
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
@@ -161,28 +163,37 @@ class _QRViewExampleState extends State<QRScanner> {
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         result = scanData;
+      });
+      if(result != null){
+        log("data has been read");
 
-        // if qr is detected
-        if(result!.code != null){
-          String str = result!.code!;
-          var qrData = jsonDecode(str) as Map<String, dynamic>;
-          log(str);
-          //log(qrData.toString());
+        String str = result!.code!;
+        var qrData = jsonDecode(str) as Map<String, dynamic>;
+        log(str);
 
-          //await controller.pauseCamera();
-          if(qrData["subject"]["PCN"] != null){
+        if(qrData["subject"] != null){
+          controller.pauseCamera().then((_){
             QuickAlert.show(
               context: context,
-              type: QuickAlertType.success,
-              text: "QR Successfully Scanned\nPCN: ${qrData["subject"]["PCN"]}",
+              type: QuickAlertType.confirm,
+              confirmBtnText: 'Yes',
+              cancelBtnText: 'No',
+              text: "Create/Update log?\nPCN: ${qrData["subject"]["PCN"]}",
+              onConfirmBtnTap: () async {
+                log("adding log to database");
+
+                Navigator.pop(context);
+                await controller.resumeCamera();
+              },
+              onCancelBtnTap: () async {
+                Navigator.pop(context);
+                await controller.resumeCamera();
+              }
             );
-
-            
-          }
-
-          //await controller.resumeCamera();
+          });
+          //controller.resumeCamera();
         }
-      });
+      }
     });
   }
 
