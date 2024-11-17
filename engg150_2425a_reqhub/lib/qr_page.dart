@@ -182,6 +182,36 @@ class _QRViewExampleState extends State<QRScanner> {
               onConfirmBtnTap: () async {
                 log("adding log to database");
 
+                // check if unlogged out log is in database
+                await db.collection("logs").where("id", isEqualTo: qrData["subject"]["PCN"]).get().then((querySnapshot){
+                  var loggingOut = false;
+                  for (var docSnapshot in querySnapshot.docs) {
+                    log('${docSnapshot.id} => ${docSnapshot.data()}');
+                    if(docSnapshot.data()['timeOut'] == null){
+                      log("logging out");
+                      loggingOut = true;
+
+                      db.collection("logs").doc(docSnapshot.id).set({"timeOut" : DateTime.now()}, SetOptions(merge: true));
+
+                      break;
+                    }
+                  }
+
+                  if(!loggingOut){
+                    log("logging in");
+                // add to firebase
+                    final newlog = <String, dynamic>{
+                      "id": qrData["subject"]["PCN"],
+                      "timeIn": DateTime.now(),
+                      "timeOut": null,
+                    };
+
+                    db.collection("logs").add(newlog).then((DocumentReference doc) =>
+                      log('DocumentSnapshot added with ID: ${doc.id}'));
+                  }
+                });
+
+
                 Navigator.pop(context);
                 await controller.resumeCamera();
               },
