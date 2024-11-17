@@ -180,11 +180,11 @@ class _QRViewExampleState extends State<QRScanner> {
               cancelBtnText: 'No',
               text: "Create/Update log?\nPCN: ${qrData["subject"]["PCN"]}",
               onConfirmBtnTap: () async {
+                var loggingOut = false;
                 log("adding log to database");
 
                 // check if unlogged out log is in database
                 await db.collection("logs").where("id", isEqualTo: qrData["subject"]["PCN"]).get().then((querySnapshot){
-                  var loggingOut = false;
                   for (var docSnapshot in querySnapshot.docs) {
                     log('${docSnapshot.id} => ${docSnapshot.data()}');
                     if(docSnapshot.data()['timeOut'] == null){
@@ -197,9 +197,11 @@ class _QRViewExampleState extends State<QRScanner> {
                     }
                   }
 
+
+                  // user is logging in
                   if(!loggingOut){
                     log("logging in");
-                // add to firebase
+                    // add to firebase
                     final newlog = <String, dynamic>{
                       "id": qrData["subject"]["PCN"],
                       "timeIn": DateTime.now(),
@@ -208,11 +210,32 @@ class _QRViewExampleState extends State<QRScanner> {
 
                     db.collection("logs").add(newlog).then((DocumentReference doc) =>
                       log('DocumentSnapshot added with ID: ${doc.id}'));
+
+                    // check if user exists in db
+                    db.collection("users").doc(qrData["subject"]["PCN"]).get().then((doc){
+                      // user is not in database, add to database
+                      if (!doc.exists){
+                        log("adding user to database");
+                        db.collection("users").doc(qrData["subject"]["PCN"]).set(qrData["subject"]);
+                      }
+                      else{
+                        log("user already in database");
+                      }
+                    });
+
                   }
                 });
 
 
                 Navigator.pop(context);
+
+
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.success,
+                  text: (loggingOut) ? "User was logged out." : "User was logged in",
+                );
+
                 await controller.resumeCamera();
               },
               onCancelBtnTap: () async {
