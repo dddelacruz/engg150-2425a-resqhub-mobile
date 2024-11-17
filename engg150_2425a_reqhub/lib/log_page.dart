@@ -1,26 +1,24 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quickalert/quickalert.dart';
 
 
-class RegisterForm extends StatefulWidget{
-  const RegisterForm({super.key});
+class LogInOutForm extends StatefulWidget{
+  const LogInOutForm({super.key});
 
   @override
-  State<RegisterForm> createState() => _RegisterFormState();
+  State<LogInOutForm> createState() => _LogInOutFormState();
 }
 
-class _RegisterFormState extends State<RegisterForm>{
-  final genderOptions = ["Male", "Female"];
+class _LogInOutFormState extends State<LogInOutForm>{
   final _formKey = GlobalKey<FormBuilderState>();
   final db = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context){
-    
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
@@ -69,56 +67,11 @@ class _RegisterFormState extends State<RegisterForm>{
 
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: FormBuilderDropdown(
-                        name: "sex", 
-                        items: genderOptions
-                        .map((gender) => DropdownMenuItem(
-                              alignment: AlignmentDirectional.center,
-                              value: gender,
-                              child: Text(gender),
-                            ))
-                          .toList(),
-                        decoration: InputDecoration(
-                          labelText: "Gender",
-                        ),
-                      ),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: FormBuilderDateTimePicker(
-                        name: "DOB", 
-                        initialDate: DateTime.now(),
-                        inputType: InputType.date,
-                        decoration: InputDecoration(
-                          labelText: "Date of Birth",
-                        ),
-                      ),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: ElevatedButton(
                         onPressed: () {
                           debugPrint(_formKey.currentState?.value.toString());
 
-                          // add to users database
-                          log("adding user to database");
-                          db.collection("users").add(_formKey.currentState!.value).then((DocumentReference doc) {
-                            log('DocumentSnapshot added with ID: ${doc.id}');
-
-                            final newlog = <String, dynamic>{
-                              "id": doc.id,
-                              "timeIn": DateTime.now(),
-                              "timeOut": null,
-                            };
-
-                            // add new log to log database
-                            db.collection("logs").add(newlog).then((DocumentReference doc2) =>
-                              log('DocumentSnapshot added with ID: ${doc2.id}'));
-                          });
-
-                            
+                          // add new log to log database
 
                           QuickAlert.show(
                             context: context,

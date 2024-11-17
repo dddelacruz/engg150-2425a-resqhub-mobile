@@ -1,5 +1,6 @@
 import 'package:engg150_2425a_reqhub/qr_page.dart';
 import 'package:engg150_2425a_reqhub/register_page.dart';
+import 'package:engg150_2425a_reqhub/log_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -53,12 +54,15 @@ class _NavBarState extends State<NavBar> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            selectedIcon: Icon(Icons.home),
             icon: Icon(Icons.qr_code_2),
             label: 'Scan QR',
           ),
           NavigationDestination(
-            icon: Badge(child: Icon(Icons.person_add_alt)),
+            icon: Icon(Icons.add_to_photos),
+            label: 'Log In/Out',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_add),
             label: 'Register',
           ),
         ],
@@ -66,6 +70,7 @@ class _NavBarState extends State<NavBar> {
 
       body: <Widget>[
         QRScanner(),
+        LogInOutForm(),
         RegisterForm(),
       ][currentPageIndex],
     );
