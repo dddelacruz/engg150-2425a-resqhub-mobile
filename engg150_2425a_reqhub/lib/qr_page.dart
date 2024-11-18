@@ -223,18 +223,27 @@ class _QRViewExampleState extends State<QRScanner> {
                       }
                     });
 
+                    Navigator.pop(context);
+
+
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.success,
+                      text: "User was logged in",
+                    );
+
+                  }
+                  else{
+                    Navigator.pop(context);
+
+
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.success,
+                      text: "User was logged out",
+                    );
                   }
                 });
-
-
-                Navigator.pop(context);
-
-
-                QuickAlert.show(
-                  context: context,
-                  type: QuickAlertType.success,
-                  text: (loggingOut) ? "User was logged out." : "User was logged in",
-                );
 
                 await controller.resumeCamera();
               },
