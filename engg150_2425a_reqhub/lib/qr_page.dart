@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class QRScanner extends StatefulWidget{
   const QRScanner({super.key});
@@ -216,7 +217,12 @@ class _QRViewExampleState extends State<QRScanner> {
                       // user is not in database, add to database
                       if (!doc.exists){
                         log("adding user to database");
-                        db.collection("users").doc(qrData["subject"]["PCN"]).set(qrData["subject"]);
+                        var newUser = qrData["subject"] as Map<String, dynamic>;
+                        newUser["DOB"] = DateFormat('MMMM dd, yyyy').parse(qrData["subject"]["DOB"]);
+
+                        //log('${DateTime.parse(newUser["DOB"])}');
+
+                        db.collection("users").doc(qrData["subject"]["PCN"]).set(newUser);
                       }
                       else{
                         log("user already in database");
